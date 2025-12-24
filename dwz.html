@@ -118,7 +118,7 @@
 
 <body>
     <!-- 个人博客首页 -->
-    <div id="blog-page">
+    <div id="blog-page" class="hidden">
         <div class="blog-container">
             <div class="blog-header">
                 <h1 class="blog-title">技术博客</h1>
@@ -175,8 +175,92 @@
     const iframe = document.getElementById('infrm');
     const loadingText = document.getElementById('loading-text');
     
-    // 只展示博客，没有任何URL参数功能
-    // 保持原有的加载逻辑（虽然不会触发，但保留结构）
+    // 获取URL参数
+    function getUrlParam(name) {
+        const urlParams = new URLSearchParams(window.location.search);
+        return urlParams.get(name);
+    }
+    
+    // 验证URL
+    function isValidURL(string) {
+        try {
+            new URL(string);
+            return true;
+        } catch (_) {
+            return false;
+        }
+    }
+    
+    // 加载页面到iframe
+    function loadPage(url) {
+        // 隐藏博客，显示iframe
+        blogPage.classList.add('hidden');
+        
+        // 显示加载动画
+        loading.classList.remove('hidden');
+        iframe.classList.add('hidden');
+        
+        // 保持原有的超时逻辑
+        var timeout = setTimeout(function() {
+            loading.style.display = 'none';
+            iframe.classList.remove('hidden');
+        }, 3000);
+        
+        // 保持原有的iframe加载逻辑
+        iframe.src = url;
+        iframe.onload = function() {
+            clearTimeout(timeout);
+            loading.style.display = 'none';
+            loading.classList.add('hidden');
+            iframe.classList.remove('hidden');
+        };
+        
+        // 保持原有的iframe错误处理
+        iframe.onerror = function() {
+            clearTimeout(timeout);
+            loading.style.display = 'none';
+            loading.classList.add('hidden');
+            iframe.classList.add('hidden');
+            blogPage.classList.remove('hidden');
+            alert('加载失败，请检查网址是否正确');
+        };
+    }
+    
+    // 页面加载时检查URL参数
+    document.addEventListener('DOMContentLoaded', function() {
+        const urlParam = getUrlParam('url');
+        
+        if (urlParam) {
+            const decodedUrl = decodeURIComponent(urlParam);
+            if (isValidURL(decodedUrl)) {
+                // 如果有url参数，加载页面
+                loadPage(decodedUrl);
+            } else {
+                // URL无效，显示博客
+                blogPage.classList.remove('hidden');
+            }
+        } else {
+            // 没有url参数，显示博客
+            blogPage.classList.remove('hidden');
+        }
+        
+        // 监听浏览器前进后退
+        window.addEventListener('popstate', function() {
+            const newUrlParam = getUrlParam('url');
+            if (newUrlParam) {
+                const decodedUrl = decodeURIComponent(newUrlParam);
+                if (isValidURL(decodedUrl)) {
+                    loadPage(decodedUrl);
+                }
+            } else {
+                // 没有url参数，显示博客
+                blogPage.classList.remove('hidden');
+                loading.classList.add('hidden');
+                iframe.classList.add('hidden');
+                iframe.src = '';
+            }
+        });
+    });
     
     // 保持原有的iframe加载逻辑（完全不变）
     var timeout = setTimeout(function() {
@@ -187,14 +271,6 @@
         clearTimeout(timeout);
         loading.style.display = 'none';
     };
-    
-    // 页面加载时只显示博客
-    document.addEventListener('DOMContentLoaded', function() {
-        // 确保只显示博客页面
-        blogPage.classList.remove('hidden');
-        loading.classList.add('hidden');
-        iframe.classList.add('hidden');
-    });
 </script>
 </body>
 </html>
