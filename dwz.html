@@ -1,398 +1,200 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
-    <title>页面加载器</title>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-        
-        body {
-            margin: 0;
-            padding: 0;
-            height: 100vh;
-            overflow: hidden;
-            font-family: Arial, sans-serif;
-        }
-        
-        #input-container {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            z-index: 10000;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            flex-direction: column;
-        }
-        
-        .input-box {
-            background: white;
-            padding: 40px;
-            border-radius: 15px;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
-            text-align: center;
-            max-width: 90%;
-            width: 500px;
-        }
-        
-        h2 {
-            color: #333;
-            margin-bottom: 20px;
-            font-size: 24px;
-        }
-        
-        #url-input {
-            width: 100%;
-            padding: 15px;
-            border: 2px solid #e0e0e0;
-            border-radius: 8px;
-            font-size: 16px;
-            margin-bottom: 15px;
-            transition: border-color 0.3s;
-        }
-        
-        #url-input:focus {
-            outline: none;
-            border-color: #667eea;
-        }
-        
-        .button {
-            background: #667eea;
-            color: white;
-            border: none;
-            padding: 15px 30px;
-            border-radius: 8px;
-            font-size: 16px;
-            cursor: pointer;
-            transition: background 0.3s;
-            margin: 5px;
-            width: 100%;
-        }
-        
-        .button:hover {
-            background: #5a67d8;
-        }
-        
-        #loading {
-            position: fixed;
-            z-index: 9999;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: white;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            flex-direction: column;
-        }
-        
-        .spinner {
-            width: 50px;
-            height: 50px;
-            border: 5px solid #f3f3f3;
-            border-top: 5px solid #667eea;
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-            margin-bottom: 20px;
-        }
-        
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-        
-        #loading-text {
-            font-size: 18px;
-            color: #333;
-        }
-        
-        #error {
-            color: #e53e3e;
-            margin-top: 15px;
-            font-size: 14px;
-        }
-        
-        #infrm {
-            width: 100%;
-            height: 100%;
-            border: none;
-        }
-        
-        .hidden {
-            display: none !important;
-        }
-        
-        .examples {
-            margin-top: 20px;
-            font-size: 14px;
-            color: #666;
-        }
-        
-        .example-link {
-            color: #667eea;
-            text-decoration: none;
-            margin: 0 5px;
-            cursor: pointer;
-        }
-        
-        .example-link:hover {
-            text-decoration: underline;
-        }
-        
-        #back-button {
-            position: fixed;
-            top: 20px;
-            left: 20px;
-            z-index: 10001;
-            background: rgba(255,255,255,0.9);
-            padding: 10px 15px;
-            border-radius: 5px;
-            cursor: pointer;
-            display: none;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-        }
-    </style>
-</head>
-<body>
-    <!-- 返回按钮 -->
-    <div id="back-button" onclick="goHome()">返回首页</div>
+<meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport" />
+<title>个人博客</title>
+
+<style>
+    body {
+        margin: 0;
+        padding: 0;
+        height: 100vh;
+        overflow: hidden;
+        font-family: "Microsoft YaHei", Arial, sans-serif;
+    }
     
-    <!-- URL输入界面 -->
-    <div id="input-container">
-        <div class="input-box">
-            <h2>📱 页面加载器</h2>
-            <input type="text" 
-                   id="url-input" 
-                   placeholder="请输入完整的网址 (例如: https://example.com)"
-                   autocomplete="off">
-            <button class="button" onclick="loadFromInput()">🚀 加载页面</button>
-            <button class="button" onclick="loadWithCurrentUrl()" style="background: #48bb78; margin-top: 10px;">
-                🔄 使用当前URL参数
-            </button>
+    /* 完全隐藏博客和加载动画的样式 */
+    #blog-page, #loading, #infrm {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+    }
+    
+    #blog-page {
+        background: white;
+        overflow-y: auto;
+        z-index: 1;
+    }
+    
+    #loading {
+        z-index: 9999;
+        background-color: #ffffff;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    
+    #loading-text {
+        font-size: 20px;
+    }
+    
+    #infrm {
+        z-index: 2;
+        border: none;
+    }
+    
+    .hidden {
+        display: none !important;
+    }
+    
+    /* 博客样式 */
+    .blog-container {
+        max-width: 800px;
+        margin: 0 auto;
+        padding: 20px;
+    }
+    
+    .blog-header {
+        text-align: center;
+        padding: 40px 0 30px;
+        border-bottom: 1px solid #eee;
+    }
+    
+    .blog-title {
+        font-size: 32px;
+        color: #333;
+        margin-bottom: 10px;
+    }
+    
+    .blog-subtitle {
+        font-size: 18px;
+        color: #666;
+    }
+    
+    .blog-content {
+        padding: 30px 0;
+        line-height: 1.8;
+    }
+    
+    .blog-articles {
+        margin-top: 40px;
+    }
+    
+    .article {
+        margin-bottom: 30px;
+        padding-bottom: 20px;
+        border-bottom: 1px solid #eee;
+    }
+    
+    .article-title {
+        font-size: 20px;
+        color: #333;
+        margin-bottom: 10px;
+    }
+    
+    .article-meta {
+        color: #999;
+        font-size: 14px;
+        margin-bottom: 10px;
+    }
+    
+    .article-content {
+        color: #555;
+        line-height: 1.6;
+    }
+    
+    .blog-footer {
+        text-align: center;
+        padding: 20px;
+        color: #999;
+        font-size: 14px;
+        border-top: 1px solid #eee;
+        margin-top: 40px;
+    }
+</style>
+</head>
+
+<body>
+    <!-- 个人博客首页 -->
+    <div id="blog-page">
+        <div class="blog-container">
+            <div class="blog-header">
+                <h1 class="blog-title">技术博客</h1>
+                <p class="blog-subtitle">分享技术，记录成长</p>
+            </div>
             
-            <div id="error" class="hidden"></div>
+            <div class="blog-content">
+                <!-- 博客文章部分 -->
+                <div class="blog-articles">
+                    <div class="article">
+                        <h3 class="article-title">前端开发入门指南</h3>
+                        <div class="article-meta">2024年1月15日 | 前端开发</div>
+                        <div class="article-content">
+                            前端开发是构建网站和应用程序用户界面的过程。HTML、CSS和JavaScript是前端开发的三大核心技术...
+                        </div>
+                    </div>
+                    
+                    <div class="article">
+                        <h3 class="article-title">JavaScript 最佳实践</h3>
+                        <div class="article-meta">2024年1月10日 | JavaScript</div>
+                        <div class="article-content">
+                            编写高质量的JavaScript代码需要注意代码规范、性能优化、错误处理等多个方面...
+                        </div>
+                    </div>
+                    
+                    <div class="article">
+                        <h3 class="article-title">现代Web技术趋势</h3>
+                        <div class="article-meta">2024年1月5日 | 技术趋势</div>
+                        <div class="article-content">
+                            随着Web技术的不断发展，越来越多的新技术和框架涌现出来，为开发者提供了更多选择...
+                        </div>
+                    </div>
+                </div>
+            </div>
             
-            <div class="examples">
-                快速示例：
-                <span class="example-link" onclick="loadExample('https://www.baidu.com')">百度</span> |
-                <span class="example-link" onclick="loadExample('https://www.qq.com')">腾讯</span> |
-                <span class="example-link" onclick="loadExample('https://github.com')">GitHub</span>
+            <div class="blog-footer">
+                © 2024 个人技术博客
             </div>
         </div>
     </div>
     
-    <!-- 加载动画 -->
+    <!-- 保持原有的加载动画 -->
     <div id="loading" class="hidden">
-        <div class="spinner"></div>
-        <div id="loading-text">正在加载页面...</div>
+        <span id="loading-text">Loading...</span>
     </div>
     
-    <!-- iframe容器 -->
-    <iframe id="infrm" name="infrm" class="hidden"></iframe>
+    <!-- 完全保持原有的iframe，不做任何修改 -->
+    <iframe id="infrm" name="infrm" marginwidth="0" marginheight="0" width="100%" scrolling=auto src="" frameborder="0" height="100%" allowfullscreen="true" class="hidden"></iframe>
+
+<script>
+    // 获取DOM元素
+    const blogPage = document.getElementById('blog-page');
+    const loading = document.getElementById('loading');
+    const iframe = document.getElementById('infrm');
+    const loadingText = document.getElementById('loading-text');
     
-    <script>
-        // 获取DOM元素
-        const inputContainer = document.getElementById('input-container');
-        const urlInput = document.getElementById('url-input');
-        const loading = document.getElementById('loading');
-        const iframe = document.getElementById('infrm');
-        const errorDiv = document.getElementById('error');
-        const backButton = document.getElementById('back-button');
-        const loadingText = document.getElementById('loading-text');
-        const titleElement = document.querySelector('title');
-        
-        // 获取URL参数
-        function getUrlParam(name) {
-            const urlParams = new URLSearchParams(window.location.search);
-            return urlParams.get(name);
-        }
-        
-        // 验证URL
-        function isValidURL(string) {
-            try {
-                const url = new URL(string);
-                return url.protocol === 'http:' || url.protocol === 'https:';
-            } catch (_) {
-                return false;
-            }
-        }
-        
-        // 处理URL格式
-        function formatURL(url) {
-            url = url.trim();
-            // 如果没有协议，添加https://
-            if (!url.startsWith('http://') && !url.startsWith('https://')) {
-                url = 'https://' + url;
-            }
-            return url;
-        }
-        
-        // 显示错误
-        function showError(message) {
-            errorDiv.textContent = message;
-            errorDiv.classList.remove('hidden');
-        }
-        
-        // 隐藏错误
-        function hideError() {
-            errorDiv.classList.add('hidden');
-        }
-        
-        // 从输入框加载
-        function loadFromInput() {
-            const url = urlInput.value.trim();
-            if (!url) {
-                showError('请输入网址');
-                return;
-            }
-            
-            const formattedUrl = formatURL(url);
-            if (!isValidURL(formattedUrl)) {
-                showError('网址格式不正确，请使用 http:// 或 https:// 开头');
-                return;
-            }
-            
-            // 更新浏览器URL（不刷新页面）
-            const newUrl = window.location.pathname + '?url=' + encodeURIComponent(formattedUrl);
-            window.history.pushState({}, '', newUrl);
-            
-            // 加载页面
-            loadPage(formattedUrl);
-        }
-        
-        // 使用当前URL参数加载
-        function loadWithCurrentUrl() {
-            const urlParam = getUrlParam('url');
-            if (urlParam) {
-                const decodedUrl = decodeURIComponent(urlParam);
-                if (isValidURL(decodedUrl)) {
-                    urlInput.value = decodedUrl;
-                    loadPage(decodedUrl);
-                } else {
-                    showError('URL参数格式不正确');
-                }
-            } else {
-                showError('没有找到URL参数');
-            }
-        }
-        
-        // 加载示例
-        function loadExample(url) {
-            urlInput.value = url;
-            loadFromInput();
-        }
-        
-        // 加载页面到iframe
-        function loadPage(url) {
-            hideError();
-            inputContainer.classList.add('hidden');
-            loading.classList.remove('hidden');
-            backButton.style.display = 'block';
-            
-            // 更新页面标题
-            try {
-                const domain = new URL(url).hostname;
-                titleElement.textContent = `加载中: ${domain}`;
-            } catch (e) {
-                titleElement.textContent = '页面加载器';
-            }
-            
-            // 设置加载超时
-            const timeout = setTimeout(() => {
-                loadingText.textContent = '加载时间较长，请耐心等待...';
-            }, 5000);
-            
-            // 加载iframe
-            iframe.src = url;
-            iframe.classList.remove('hidden');
-            
-            iframe.onload = function() {
-                clearTimeout(timeout);
-                loading.classList.add('hidden');
-                try {
-                    const domain = new URL(url).hostname;
-                    titleElement.textContent = domain;
-                } catch (e) {
-                    // 忽略错误
-                }
-            };
-            
-            iframe.onerror = function() {
-                clearTimeout(timeout);
-                loading.classList.add('hidden');
-                showError('加载失败，请检查网址是否正确或网站是否允许嵌入');
-                inputContainer.classList.remove('hidden');
-                backButton.style.display = 'none';
-            };
-        }
-        
-        // 返回首页
-        function goHome() {
-            // 清除URL参数
-            window.history.pushState({}, '', window.location.pathname);
-            
-            // 重置页面
-            inputContainer.classList.remove('hidden');
-            loading.classList.add('hidden');
-            iframe.classList.add('hidden');
-            iframe.src = '';
-            backButton.style.display = 'none';
-            urlInput.value = '';
-            hideError();
-            titleElement.textContent = '页面加载器';
-        }
-        
-        // 页面加载时检查URL参数
-        document.addEventListener('DOMContentLoaded', function() {
-            const urlParam = getUrlParam('url');
-            
-            if (urlParam) {
-                const decodedUrl = decodeURIComponent(urlParam);
-                if (isValidURL(decodedUrl)) {
-                    // 自动加载页面
-                    urlInput.value = decodedUrl;
-                    loadPage(decodedUrl);
-                } else {
-                    showError('URL参数格式不正确，请输入完整网址');
-                }
-            }
-            
-            // 监听浏览器前进后退
-            window.addEventListener('popstate', function() {
-                const newUrlParam = getUrlParam('url');
-                if (newUrlParam) {
-                    const decodedUrl = decodeURIComponent(newUrlParam);
-                    if (isValidURL(decodedUrl)) {
-                        urlInput.value = decodedUrl;
-                        loadPage(decodedUrl);
-                    }
-                } else {
-                    goHome();
-                }
-            });
-            
-            // 输入框回车事件
-            urlInput.addEventListener('keypress', function(e) {
-                if (e.key === 'Enter') {
-                    loadFromInput();
-                }
-            });
-        });
-        
-        // 监听iframe内部链接点击（可选）
-        window.addEventListener('message', function(event) {
-            // 这里可以处理从iframe内部传递的消息
-            console.log('收到消息:', event.data);
-        });
-    </script>
+    // 只展示博客，没有任何URL参数功能
+    // 保持原有的加载逻辑（虽然不会触发，但保留结构）
+    
+    // 保持原有的iframe加载逻辑（完全不变）
+    var timeout = setTimeout(function() {
+        loading.style.display = 'none';
+    }, 3000);
+
+    iframe.onload = function() {
+        clearTimeout(timeout);
+        loading.style.display = 'none';
+    };
+    
+    // 页面加载时只显示博客
+    document.addEventListener('DOMContentLoaded', function() {
+        // 确保只显示博客页面
+        blogPage.classList.remove('hidden');
+        loading.classList.add('hidden');
+        iframe.classList.add('hidden');
+    });
+</script>
 </body>
 </html>
